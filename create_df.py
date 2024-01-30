@@ -35,6 +35,9 @@ def create_dataframe(main_directory):
     data = {'filename': file_paths, 'class_name': class_names, 'class_id': class_ids_list}
     df = pd.DataFrame(data)
 
+    # Replace forward slashes with backslashes in the filename column
+    df['filename_'] = df['filename'].str.replace('/', '\\')
+
     # Save the DataFrame to a CSV file
     df.to_csv('data.csv', index=False)
 
@@ -47,3 +50,4 @@ if __name__ == "__main__":
 
     # Call the main function
     create_dataframe(main_directory)
+

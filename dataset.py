@@ -13,18 +13,22 @@ class UrbanSoundDataset(Dataset):
                  audio_dir,
                  transformation,
                  target_sample_rate,
-                 num_samples):
+                 num_samples,
+                 device):
         self.annotations = pd.read_csv(annotations_file)
+        self.device = device
         self.audio_dir = audio_dir
-        self.transformation = transformation
+        self.transformation = transformation.to(self.device)
         self.target_sample_rate = target_sample_rate
         self.num_samples = num_samples
+
 
     def __len__(self):
         return len(self.annotations)
 
     def __getitem__(self, index):
         audio_sample_path = self._get_audio_sample_path(index)
+        audio_sample_path = audio_sample_path.replace('\\', '/')
         label = self._get_audio_sample_label(index)
         signal, sr = torchaudio.load(audio_sample_path)
         signal = self._resample_if_necessary(signal, sr)
@@ -59,7 +63,8 @@ class UrbanSoundDataset(Dataset):
         return signal
 
     def _get_audio_sample_path(self, index):
-        path = os.path.join(self.annotations.iloc[index, 0])
+        path = os.path.join(self.annotations.iloc[index, 3])
+
         return path
 
     def _get_audio_sample_label(self, index):
