@@ -31,6 +31,7 @@ class UrbanSoundDataset(Dataset):
         audio_sample_path = audio_sample_path.replace('\\', '/')
         label = self._get_audio_sample_label(index)
         signal, sr = torchaudio.load(audio_sample_path)
+        signal = signal.to(self.device)
         signal = self._resample_if_necessary(signal, sr)
         signal = self._mix_down_if_necessary(signal)
         signal = self._cut_if_necessary(signal)

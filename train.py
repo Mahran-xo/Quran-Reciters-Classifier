@@ -2,7 +2,7 @@ import torch
 import torchaudio
 from torch import nn
 from torch.utils.data import DataLoader
-
+from tqdm import tqdm
 from dataset import UrbanSoundDataset
 from model import CNNNetwork
 
@@ -22,6 +22,13 @@ def create_data_loader(train_data, batch_size):
 
 
 def train_single_epoch(model, data_loader, loss_fn, optimiser, device):
+    prog_bar = tqdm(
+    data_loader,
+    total=len(data_loader),
+    bar_format='{l_bar}{bar:20}{r_bar}{bar:-20b}')
+    train_loss = 0.0
+    train_correct = 0
+    cnt = 0
     for input, target in data_loader:
         input, target = input.to(device), target.to(device)
 
@@ -33,8 +40,13 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, device):
         optimiser.zero_grad()
         loss.backward()
         optimiser.step()
+        _, predicted = torch.max(prediction, 1)
+        train_loss += loss.item()
+        train_correct += (predicted == target).sum().item()
 
-    print(f"loss: {loss.item()}")
+    train_loss /= cnt  # Normalize the loss by the total number of examples
+    train_accuracy = 100 * (train_correct / len(data_loader.dataset))
+    print('Train Loss: {:.4f}, Train Accuracy: {:.2f}%'.format(train_loss, train_accuracy))
 
 
 def train(model, data_loader, loss_fn, optimiser, device, epochs):

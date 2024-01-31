@@ -9,7 +9,7 @@ def create_dataframe(main_directory):
     class_ids = {}
 
     # Assign unique class ids to each class
-    class_id_counter = 1
+    class_id_counter = 0
 
     # Traverse through the main directory and its subdirectories
     for root, dirs, files in tqdm(os.walk(main_directory)):
