@@ -23,13 +23,17 @@ def create_data_loader(train_data, batch_size):
 
 def train_single_epoch(model, data_loader, loss_fn, optimiser, device):
     prog_bar = tqdm(
-    data_loader,
-    total=len(data_loader),
-    bar_format='{l_bar}{bar:20}{r_bar}{bar:-20b}')
+        data_loader,
+        total=len(data_loader),
+        bar_format='{l_bar}{bar:20}{r_bar}{bar:-20b}')
     train_loss = 0.0
     train_correct = 0
     cnt = 0
-    for input, target in data_loader:
+
+    for idx, (input, target) in enumerate(prog_bar):
+        # Unpack elements from the tuple
+        # print(f'Type of input: {input}')
+        # print(f'Type of target: {target}')
         input, target = input.to(device), target.to(device)
 
         # calculate loss
@@ -40,13 +44,17 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, device):
         optimiser.zero_grad()
         loss.backward()
         optimiser.step()
+
         _, predicted = torch.max(prediction, 1)
         train_loss += loss.item()
         train_correct += (predicted == target).sum().item()
 
-    train_loss /= cnt  # Normalize the loss by the total number of examples
+        cnt += 1  # Increment the counter for each batch processed
+
+    train_loss /= cnt  # Normalize the loss by the total number of batches
     train_accuracy = 100 * (train_correct / len(data_loader.dataset))
     print('Train Loss: {:.4f}, Train Accuracy: {:.2f}%'.format(train_loss, train_accuracy))
+
 
 
 def train(model, data_loader, loss_fn, optimiser, device, epochs):

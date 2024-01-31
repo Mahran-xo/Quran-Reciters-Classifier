@@ -39,7 +39,10 @@ def create_dataframe(main_directory):
     df['filename_'] = df['filename'].str.replace('/', '\\')
 
     # Save the DataFrame to a CSV file
-    df.to_csv('data.csv', index=False)
+    df_test =  df.sample(frac=0.1, random_state=42).copy()
+    df =  df.sample(frac=0.40, random_state=42).copy()
+    df.to_csv('train_data.csv', index=False)
+    df_test.to_csv('test_data.csv', index=False)
 
     # Display the DataFrame
     print(df)

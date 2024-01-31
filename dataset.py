@@ -54,7 +54,7 @@ class UrbanSoundDataset(Dataset):
 
     def _resample_if_necessary(self, signal, sr):
         if sr != self.target_sample_rate:
-            resampler = torchaudio.transforms.Resample(sr, self.target_sample_rate)
+            resampler = torchaudio.transforms.Resample(sr, self.target_sample_rate).to(signal.device)
             signal = resampler(signal)
         return signal
 
@@ -64,12 +64,12 @@ class UrbanSoundDataset(Dataset):
         return signal
 
     def _get_audio_sample_path(self, index):
-        path = os.path.join(self.annotations.iloc[index, 3])
+        path = os.path.join(self.annotations.iloc[index, 4])
 
         return path
 
     def _get_audio_sample_label(self, index):
-        return self.annotations.iloc[index, 2]
+        return self.annotations.iloc[index, 3]
 
 
 # if __name__ == "__main__":
