@@ -1,53 +1,48 @@
 import torch
 import torchaudio
+from utils import preprocess_audio_file
 import os
-from model import CNNNetwork
-from dataset import UrbanSoundDataset
-from train import AUDIO_DIR, ANNOTATIONS_FILE, SAMPLE_RATE, NUM_SAMPLES
-
+from model import M5
+from train import  SAMPLE_RATE, NUM_SAMPLES
 
 class_mapping = sorted(os.listdir("data"))
 
 
-def predict(model, input, target, class_mapping):
+def predict(model, input,class_mapping):
     model.eval()
     with torch.no_grad():
+        input.unsqueeze_(0)
         predictions = model(input)
         # Tensor (1, 10) -> [ [0.1, 0.01, ..., 0.6] ]
-        predicted_index = predictions[0].argmax(0)
+        predicted_index = predictions.argmax(dim=-1)
         predicted = class_mapping[predicted_index]
-        expected = class_mapping[target]
-    return predicted, expected
+    return predicted
 
 
 if __name__ == "__main__":
     print(class_mapping)
     # load back the model
-    cnn = CNNNetwork()
-    state_dict = torch.load("feedforwardnet.pth",map_location=torch.device('cpu'))
+    cnn = M5(n_input=1, n_output=4)
+    state_dict = torch.load("M5.pth",map_location=torch.device('cpu'))
     cnn.load_state_dict(state_dict)
 
     # load urban sound dataset dataset
-    mel_spectrogram = torchaudio.transforms.MelSpectrogram(
-        sample_rate=SAMPLE_RATE,
-        n_fft=1024,
-        hop_length=512,
-        n_mels=64
-    )
+    # mel_spectrogram = torchaudio.transforms.MelSpectrogram(
+    #     sample_rate=SAMPLE_RATE,
+    #     n_fft=1024,
+    #     hop_length=512,
+    #     n_mels=64
+    # )
+    audio_file_path = "Qari Alaa Aqil Surah Al Fatiha  Best Quran Voice   سورة الفاتحة القارئ علاء عقل.mp3"
+    TARGET_SAMPLE_RATE = 8000
+    NUM_SAMPLES = 8000
+    DURATION = 30  # Specify the desired duration in seconds
+    DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    usd = UrbanSoundDataset(ANNOTATIONS_FILE,
-                            AUDIO_DIR,
-                            mel_spectrogram,
-                            SAMPLE_RATE,
-                            NUM_SAMPLES,
-                            "cpu")
+    preprocessed_signal = preprocess_audio_file(audio_file_path, TARGET_SAMPLE_RATE, NUM_SAMPLES, DURATION, DEVICE)
 
-
-    # get a sample from the urban sound dataset for inference
-    input, target = usd[0][0], usd[0][1] # [batch size, num_channels, fr, time]
-    input.unsqueeze_(0)
+    
 
     # make an inference
-    predicted, expected = predict(cnn, input, target,
-                                  class_mapping)
-    print(f"Predicted: '{predicted}', expected: '{expected}'")
+    predicted = predict(cnn, preprocessed_signal,class_mapping)
+    print(f"Predicted: {predicted}")
