@@ -1,9 +1,9 @@
 import torchaudio
 import torch
 
-def preprocess_audio_file(audio_file_path,target_sample_rate, num_samples, duration ,device='cpu'):
+def preprocess_audio_file(audio_file_path,target_sample_rate, num_samples, duration ,device):
     # Load the audio file
-    signal, sr = torchaudio.load(audio_file_path, num_frames=int(target_sample_rate * duration))
+    signal, sr = torchaudio.load(audio_file_path)
 
     # Convert to the target device
     signal = signal.to(device)
