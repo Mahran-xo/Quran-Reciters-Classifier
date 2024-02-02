@@ -72,26 +72,5 @@ class UrbanSoundDataset(Dataset):
         return self.annotations.iloc[index, 3]
 
 
-# if __name__ == "__main__":
-#     ANNOTATIONS_FILE = "data.csv"
-#     AUDIO_DIR = "data"
-#     SAMPLE_RATE = 22050
-#     NUM_SAMPLES = 22050
-#
-#     mel_spectrogram = torchaudio.transforms.MelSpectrogram(
-#         sample_rate=SAMPLE_RATE,
-#         n_fft=1024,
-#         hop_length=512,
-#         n_mels=64
-#     )
-#
-#     usd = UrbanSoundDataset(ANNOTATIONS_FILE,
-#                             AUDIO_DIR,
-#                             mel_spectrogram,
-#                             SAMPLE_RATE,
-#                             NUM_SAMPLES)
-#     print(f"There are {len(usd)} samples in the dataset.")
-#     signal, label = usd[4000]
-#     print(label)
 
 
