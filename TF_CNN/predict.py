@@ -90,5 +90,5 @@ if __name__ == "__main__":
     assert kss is kss1
 
     # make a prediction
-    keyword = kss.predict("/mnt/c/FOLDERSSSSSSSSSSSSSSSSSS/Projects/Quran-Reciters-Classifier/test_examples/AHMAD.mp3")
+    keyword = kss.predict("/mnt/c/FOLDERSSSSSSSSSSSSSSSSSS/Projects/Quran-Reciters-Classifier/test_examples/hegazy.mp3")
     print(keyword)
