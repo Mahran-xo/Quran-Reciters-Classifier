@@ -1,9 +1,3 @@
 __pycache__/
 data/
-quran.xlsx
-feedforwardnet.pth
-M5_best.pth.tar
-M5.pth
-data.csv
-Speech-Command-Classification/
-src/
+archive/
