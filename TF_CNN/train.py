@@ -6,9 +6,9 @@ from sklearn.model_selection import train_test_split
 
 DATA_PATH = "/mnt/c/FOLDERSSSSSSSSSSSSSSSSSS/Projects/Quran-Reciters-Classifier/TF_CNN/data.json"
 SAVED_MODEL_PATH = "model.h5"
-EPOCHS = 50
+EPOCHS = 200
 BATCH_SIZE = 32
-PATIENCE = 5
+PATIENCE = 2
 LEARNING_RATE = 0.0001
 
 
@@ -29,7 +29,7 @@ def load_data(data_path):
     return X, y
 
 
-def prepare_dataset(data_path, test_size=0.2, validation_size=0.2):
+def prepare_dataset(data_path, test_size=0.2, validation_size=0.3):
     """Creates train, validation and test sets.
 
     :param data_path (str): Path to json file containing data
@@ -69,34 +69,45 @@ def build_model(input_shape, loss="sparse_categorical_crossentropy", learning_ra
     :return model: TensorFlow model
     """
 
-    # build network architecture using convolutional layers
+        # build network architecture using convolutional layers
     model = tf.keras.models.Sequential()
 
     # 1st conv layer
     model.add(tf.keras.layers.Conv2D(64, (3, 3), activation='relu', input_shape=input_shape,
-                                     kernel_regularizer=tf.keras.regularizers.l2(0.001)))
+                                    kernel_regularizer=tf.keras.regularizers.l2(0.001)))
     model.add(tf.keras.layers.BatchNormalization())
-    model.add(tf.keras.layers.MaxPooling2D((3, 3), strides=(2,2), padding='same'))
+    model.add(tf.keras.layers.MaxPooling2D((3, 3), strides=(2, 2), padding='same'))
 
     # 2nd conv layer
-    model.add(tf.keras.layers.Conv2D(32, (3, 3), activation='relu',
-                                     kernel_regularizer=tf.keras.regularizers.l2(0.001)))
+    model.add(tf.keras.layers.Conv2D(128, (3, 3), activation='relu',
+                                    kernel_regularizer=tf.keras.regularizers.l2(0.001)))
     model.add(tf.keras.layers.BatchNormalization())
-    model.add(tf.keras.layers.MaxPooling2D((3, 3), strides=(2,2), padding='same'))
+    model.add(tf.keras.layers.MaxPooling2D((3, 3), strides=(2, 2), padding='same'))
 
     # 3rd conv layer
-    model.add(tf.keras.layers.Conv2D(32, (2, 2), activation='relu',
-                                     kernel_regularizer=tf.keras.regularizers.l2(0.001)))
+    model.add(tf.keras.layers.Conv2D(256, (2, 2), activation='relu',
+                                    kernel_regularizer=tf.keras.regularizers.l2(0.001)))
     model.add(tf.keras.layers.BatchNormalization())
-    model.add(tf.keras.layers.MaxPooling2D((2, 2), strides=(2,2), padding='same'))
+    model.add(tf.keras.layers.MaxPooling2D((2, 2), strides=(2, 2), padding='same'))
+
+    # 4th conv layer
+    model.add(tf.keras.layers.Conv2D(512, (2, 2), activation='relu',
+                                    kernel_regularizer=tf.keras.regularizers.l2(0.001), padding='same'))
+    model.add(tf.keras.layers.BatchNormalization())
+    model.add(tf.keras.layers.MaxPooling2D((2, 2), strides=(2, 2), padding='same'))
 
     # flatten output and feed into dense layer
     model.add(tf.keras.layers.Flatten())
-    model.add(tf.keras.layers.Dense(64, activation='relu'))
-    tf.keras.layers.Dropout(0.3)
+    model.add(tf.keras.layers.Dense(512, activation='relu'))
+    model.add(tf.keras.layers.Dropout(0.5))  # Adjust dropout rate as needed
+
+    # Additional dense layer
+    model.add(tf.keras.layers.Dense(256, activation='relu'))
+    model.add(tf.keras.layers.Dropout(0.5))  # Adjust dropout rate as needed
 
     # softmax output layer
     model.add(tf.keras.layers.Dense(5, activation='softmax'))
+
 
     optimiser = tf.optimizers.Adam(learning_rate=learning_rate)
 
@@ -125,7 +136,7 @@ def train(model, epochs, batch_size, patience, X_train, y_train, X_validation, y
     :return history: Training history
     """
 
-    earlystop_callback = tf.keras.callbacks.EarlyStopping(monitor="accuracy", min_delta=0.001, patience=patience)
+    earlystop_callback = tf.keras.callbacks.EarlyStopping(monitor="val_loss", min_delta=0.001, patience=patience)
 
     # train model
     history = model.fit(X_train,
