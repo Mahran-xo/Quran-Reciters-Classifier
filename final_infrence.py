@@ -28,19 +28,12 @@ def download_youtube_audio(video_url, output_path, output_format='wav'):
 INPUT = download_youtube_audio(video_url, output_path)
 
 def extract_random_second(input_audio_path, output_audio_path):
-    # Load the audio file
     audio = AudioSegment.from_file(input_audio_path)
-
-    # Get the duration of the audio in milliseconds
     audio_duration = len(audio)
 
     # Choose a random starting point within the audio
     start_time = random.randint(0, audio_duration - 1000)  # 1000 milliseconds = 1 second
-
-    # Extract one second of audio from the randomly chosen starting point
     one_second_audio = audio[start_time:start_time + 1000]
-
-    # Save the one-second audio segment to a new file
     one_second_audio.export(output_audio_path, format="wav")
 
 
