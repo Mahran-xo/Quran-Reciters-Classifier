@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project focuses on developing a simple classification model that identifies Quran reciters from audio files. The model takes an audio file as input and outputs the predicted reciter. Spectrograms of SIFT features are employed to achieve accurate classification.
+This project focuses on developing a simple classification model that identifies Quran reciters from audio files. The model takes an audio file as input and outputs the predicted reciter. Spectrograms of STFT features are employed to achieve accurate classification.
 
 ## Reciters
 
