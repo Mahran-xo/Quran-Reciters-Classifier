@@ -13,6 +13,9 @@ The model currently supports the following reciters:
 - علاء عقل
 - علاء ياسر
 - مختار الحاج
+- عبد الباسط (New)
+- المنشاوي (New)
+- طارق محمد (New)
 
 More reciters will be added in the future.
 
