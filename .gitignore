@@ -1,15 +1,6 @@
-__pycache__/
 data/
 archive/
-output_audio/
-data_shuffled
-TF_CNN/vid.mp4
-TF_CNN/vid_cut.mp4
-TF_CNN/data.json
-TF_CNN/aud.mp3
-سورة النجم للقارئ احمد الشلبي.mp4
+quran
 output_folder
 saved
 test_examples
-TF_CNN/model.keras
-model.keras

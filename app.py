@@ -1,14 +1,11 @@
-from pydub import AudioSegment
 from fastapi import FastAPI
-import random
 import numpy as np
 import os
 import shutil
 import tensorflow as tf
-from pytube import YouTube
-from pydub import AudioSegment
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
+from vals import download_youtube_audio,segment_and_extract,remove_all_content
 
 app = FastAPI()
 
@@ -28,72 +25,37 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Remove __pycache__ folder after execution
+current_dir = os.path.dirname(os.path.abspath(__file__))
+cache_folder = os.path.join(current_dir, "vals", "__pycache__")
 
-output_path = './output_folder'
+try:
+    shutil.rmtree(cache_folder)
+except OSError as e:
+    print(f"Error removing __pycache__ folder: {e}")
+
+
+output_path = 'output_folder'
 imported = tf.saved_model.load("saved")
-
-def remove_all_content(directory_path):
-    try:
-        # Iterate over all items in the directory
-        for item in os.listdir(directory_path):
-            item_path = os.path.join(directory_path, item)
-
-            # Check if it's a file or directory
-            if os.path.isfile(item_path):
-                # Remove file
-                os.remove(item_path)
-            elif os.path.isdir(item_path):
-                # Remove directory and its contents recursively
-                shutil.rmtree(item_path)
-
-        print(f"All content in {directory_path} has been removed.")
-    except Exception as e:
-        print(f"Error: {e}")
-
-
-def download_youtube_audio(video_url, output_path, output_format='wav'):
-    # Download the YouTube video
-    url = video_url
-    output_dir = output_path
-    youtube_video = YouTube(url)
-    video_stream = youtube_video.streams.filter(only_audio=True).first()
-    video_stream.download(output_dir)
-
-    # Convert the downloaded audio to WAV format
-    audio_path = f"{output_path}/{youtube_video.title}.{output_format}"
-    audio = AudioSegment.from_file(f"{output_path}/{video_stream.default_filename}")
-    audio.export(audio_path, format=output_format)
-
-    return audio_path
-
-
-def extract_random_second(input_audio_path, output_audio_path):
-    audio_path_in=input_audio_path
-    audio_path_out=output_audio_path
-    audio = AudioSegment.from_file(audio_path_in)
-    audio_duration = len(audio)
-
-    # Choose a random starting point within the audio
-    start_time = random.randint(0, audio_duration - 1000)  # 1000 milliseconds = 1 second
-    one_second_audio = audio[start_time:start_time + 1000]
-    one_second_audio.export(audio_path_out, format="wav")
-
 
 @app.post("/predict/")
 async def predict(link:str):
-    INPUT = download_youtube_audio(link, output_path)
-    extract_random_second(INPUT, INPUT)
-    pred = imported(INPUT)
+    input_video = download_youtube_audio(link, output_path,return_path=True)
+    one_second_path = segment_and_extract(input_video, output_path)
+    print(one_second_path)
+    pred = imported(one_second_path)
     class_names=pred['class_names']
     class_id=np.argmax(pred['class_ids'])
     final_pred=class_names[class_id]
 
     label =final_pred.numpy().decode('utf-8')
-
-    remove_all_content(output_path)
+    remove_all_content('output_folder')
     return {"prediction": label}
 
 if __name__ == "__main__":
     
-
     uvicorn.run(app, host="127.0.0.1", port=8000)
+
+
+
+    
