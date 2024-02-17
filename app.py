@@ -1,11 +1,12 @@
 from fastapi import FastAPI
+from vals import download_youtube_audio,segment_and_extract,remove_all_content
 import numpy as np
 import os
 import shutil
 import tensorflow as tf
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
-from vals import download_youtube_audio,segment_and_extract,remove_all_content
+
 
 app = FastAPI()
 
@@ -14,7 +15,6 @@ origins = [
     "http://localhost",
     "http://localhost:8000",
     "http://localhost:8000/docs#",
-    "http://localhost:3000",  # Example for a React app
 ]
 
 app.add_middleware(
@@ -42,7 +42,6 @@ imported = tf.saved_model.load("saved")
 async def predict(link:str):
     input_video = download_youtube_audio(link, output_path,return_path=True)
     one_second_path = segment_and_extract(input_video, output_path)
-    print(one_second_path)
     pred = imported(one_second_path)
     class_names=pred['class_names']
     class_id=np.argmax(pred['class_ids'])

@@ -7,6 +7,7 @@ from .conf import colored_tqdm ,rprint
 import subprocess
 import random
 import shutil
+import uuid
 import sys
 
 global_seed = 42
@@ -84,20 +85,29 @@ def shuffle_and_copy_data(input_dir:str, output_dir:str, num_files:int):
             shutil.copy(src_path, dest_path)
 
 
-def download_youtube_audio(url, output_path, progress_callback=None,return_path=False):
+def download_youtube_audio(url, output_path, progress_callback=None, return_path=False):
     yt = YouTube(url)
     audio_stream = yt.streams.get_audio_only("mp4")
-    audio_stream.download(output_path)
-    
+
+    # Generate a unique identifier
+    unique_id = str(uuid.uuid4())
+
+    # Append the unique identifier to the file name
+    video_file_name = f"video_{unique_id}.mp4"
+
+    # Download the audio stream with the modified file name
+    audio_stream.download(output_path, filename=video_file_name)
+
     # Simulate a total of 10 steps for the progress
     total_steps = 10
-    
+
     for step in range(1, total_steps + 1):
         # Simulate downloading progress
         time.sleep(0.1)
-        
+
         # If a progress callback is provided, update the progress
         if progress_callback:
             progress_callback(step / total_steps)
-    if return_path is True:
-        return str(os.path.join(output_path,f"{audio_stream.title}.mp4"))
+
+    if return_path:
+        return str(os.path.join(output_path, video_file_name))

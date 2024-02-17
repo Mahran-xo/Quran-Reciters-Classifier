@@ -3,7 +3,7 @@ import random
 import os
 import shutil
 from pydub import AudioSegment
-from .utilss import split_audio ,download_youtube_audio , convert_mp3_to_wav
+from .utilss import split_audio , convert_mp3_to_wav
 from .conf import rprint,gprint
 
 global_seed = 42
