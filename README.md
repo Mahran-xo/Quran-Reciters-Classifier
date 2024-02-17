@@ -9,10 +9,8 @@ This project focuses on developing a simple classification model that identifies
 The model currently supports the following reciters:
 - احمد الشلبي
 - اسماعيل القاضي
-- زين ابو كوثر
 - علاء عقل
 - علاء ياسر
-- مختار الحاج
 - عبد الباسط (New)
 - المنشاوي (New)
 - طارق محمد (New)
