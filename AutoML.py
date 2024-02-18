@@ -26,8 +26,8 @@ class SoundClf(ak.AutoModel):
         res = ak.ResNetBlock(version="v2")(norm_layer)
         merge = ak.Merge()[conv3,res]
         conv4 = ak.ConvBlock()(merge)
-        output = ak.ClassificationHead()(conv4)
-
+        output = ak.ClassificationHead(num_classes=len(y))(conv4)
+        #TODO: use __assemble__ method
         auto_model = ak.AutoModel(
             inputs=input, outputs=output, overwrite=True, max_trials=1
         )
