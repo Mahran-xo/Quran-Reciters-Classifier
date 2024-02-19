@@ -9,7 +9,7 @@ from train_utils import (
 
 
 
-
+ak.AutoModel
 class SoundClf(ak.AutoModel):
     def build(self,inputs):
         # Apply your data processing pipeline to the inputs
@@ -26,7 +26,7 @@ class SoundClf(ak.AutoModel):
         res = ak.ResNetBlock(version="v2")(norm_layer)
         merge = ak.Merge()[conv3,res]
         conv4 = ak.ConvBlock()(merge)
-        output = ak.ClassificationHead(num_classes=len(y))(conv4)
+        output = ak.ClassificationHead(num_classes=len(y),loss_function='sparse_categorical_crossentropy')(conv4)
         #TODO: use __assemble__ method
         auto_model = ak.AutoModel(
             inputs=input, outputs=output, overwrite=True, max_trials=1
@@ -49,48 +49,11 @@ val_ds = val_ds.map(squeeze, tf.data.AUTOTUNE)
 clf = SoundClf()
 
 clf.fit(
-    inputs=spectrogram_module,
-    outputs=ak.ClassificationHead(num_classes=len(np.unique(y)), loss_function='sparse_categorical_crossentropy'),
+    inputs=train_ds,
+    validation_data = val_ds,
     overwrite=True,  # Set to True if you want to re-initialize the model architecture
     max_trials=3,  # Adjust as needed
 )
-
-def model():
-    """
-    input_shape = example_spectrograms.shape[1:]
-    print('Input shape:', input_shape)
-    num_labels = len(label_names)
-
-    norm_layer = layers.Normalization()
-    norm_layer.adapt(data=train_spectrogram_ds.map(map_func=lambda spec, label: spec))
-
-    model = models.Sequential([
-    layers.Input(shape=input_shape),
-    layers.Resizing(64, 64),
-    norm_layer,
-    layers.Conv2D(64, 3, activation='relu'),
-    layers.Conv2D(64, 3, activation='relu'),
-    layers.MaxPooling2D(),
-    layers.Dropout(0.25),
-    
-    layers.Conv2D(128, 3, activation='relu'),
-    layers.Conv2D(128, 3, activation='relu'),
-    layers.MaxPooling2D(),
-    layers.Dropout(0.25),
-    
-    layers.Conv2D(256, 3, activation='relu'),
-    layers.Conv2D(256, 3, activation='relu'),
-    layers.MaxPooling2D(),
-    layers.Dropout(0.25),
-    
-    layers.Flatten(),
-    layers.Dense(512, activation='relu'),
-    layers.Dropout(0.5),
-    layers.Dense(256, activation='relu'),
-    layers.Dropout(0.5),
-    layers.Dense(num_labels),
-])
-    """
 
 
 def prep():
@@ -129,7 +92,7 @@ class SpectrogramModule(ak.Module):
         x = stereo_to_mono_converter(x, y)
         x = squeeze(x, y)
         x = get_spectrogram(x)
-
+        #use inmage classifier b2a we 5las
         # Build the AutoKeras model
         clf = ak.ImageClassifier(
             num_classes=len(np.unique(y)),

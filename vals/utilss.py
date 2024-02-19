@@ -34,7 +34,7 @@ def split_audio(input_path:str, prefix:str, output_path:str, segment_length=1000
         for i in progress_bar:
             start_time = i * segment_length
             end_time = (i + 1) * segment_length
-            if start_time < 120000:
+            if start_time < 120000 or prefix == "not_long":
                 continue
             segment = audio[start_time:end_time]
 

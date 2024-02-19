@@ -3,4 +3,4 @@ archive/
 quran
 output_folder
 saved
-test_examples
+__pycache__

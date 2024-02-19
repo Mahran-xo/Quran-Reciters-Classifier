@@ -80,19 +80,19 @@ def segment_and_extract(input_audio_path, output_folder, max_duration=3600):
             audio_path = choose_random_segment(output_folder)
             return str(audio_path)
 
+
+        gprint('audio is not long')
+        split_audio(input_path=input_audio_path, output_path=output_folder,prefix='not_long', export_format='mp3')
+
+        mp3_files = [file for file in os.listdir(output_folder) if file.endswith(".mp3")]
+
+        if mp3_files:
+            random_mp3 = random.choice(mp3_files)
+            audio_wav = convert_mp3_to_wav(os.path.join(output_folder, str(random_mp3)) ,os.path.join(output_folder, str(random_mp3).removesuffix('.mp3')))
+            return audio_wav
         else:
-            gprint('audio is not long')
-            split_audio(input_path=input_audio_path, output_path=output_folder,prefix='not_long', export_format='mp3')
-
-            mp3_files = [file for file in os.listdir(output_folder) if file.endswith(".mp3")]
-
-            if mp3_files:
-                random_mp3 = random.choice(mp3_files)
-                audio_wav = convert_mp3_to_wav(os.path.join(output_folder, str(random_mp3)) ,os.path.join(output_folder, str(random_mp3).removesuffix('.mp3')))
-                return audio_wav
-            else:
-                print("No .mp3 files found in the directory.")
-                return None
+            print("No .mp3 files found in the directory.")
+            return None
 
     except Exception as e:
         rprint(f"Error processing audio segment: {e}")

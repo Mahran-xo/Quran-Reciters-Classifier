@@ -8,7 +8,10 @@ import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 
 
-app = FastAPI()
+app = FastAPI( title="Quran Reciters Classifier",
+    description="مُصنف قُرأ القرآن الكريم",
+    version="1.0.0",
+    timeout=120  )
 
 # Allow all origins, methods, and headers. Adjust these ssettings based on your requirements.
 origins = [
@@ -35,7 +38,7 @@ except OSError as e:
     print(f"Error removing __pycache__ folder: {e}")
 
 
-output_path = 'output_folder'
+output_path =r'D:\Quran-Reciters-Classifier\output_folder'
 imported = tf.saved_model.load("saved")
 
 @app.post("/predict/")
@@ -48,7 +51,7 @@ async def predict(link:str):
     final_pred=class_names[class_id]
 
     label =final_pred.numpy().decode('utf-8')
-    remove_all_content('output_folder')
+    remove_all_content(r'D:\Quran-Reciters-Classifier\output_folder')
     return {"prediction": label}
 
 if __name__ == "__main__":
