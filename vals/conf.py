@@ -1,4 +1,5 @@
 from tqdm import tqdm
+import os
 
 RECITERS = [
     "احمد الشلبي",
@@ -18,6 +19,26 @@ RECITERS = [
     "عبد العزيز سحيم",
 ]
 
+def rename_folders(base_path, string_to_strip):
+    try:
+        # Iterate over each folder in the base path
+        for folder_name in os.listdir(base_path):
+            folder_path = os.path.join(base_path, folder_name)
+
+            # Check if it is a directory
+            if os.path.isdir(folder_path):
+                # Strip away the specified string from the folder name
+                new_folder_name = folder_name.replace(string_to_strip, '')
+
+                # Construct the new path
+                new_folder_path = os.path.join(base_path, new_folder_name)
+
+                # Rename the folder
+                os.rename(folder_path, new_folder_path)
+                gprint(f"Renamed: {folder_name} to {new_folder_name}")
+
+    except Exception as e:
+        rprint(f"An error occurred: {str(e)}")
 
 def gprint(text):
     """

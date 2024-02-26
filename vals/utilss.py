@@ -13,20 +13,21 @@ import sys
 global_seed = 42
 random.seed(global_seed)
 
-def split_audio(input_path:str, prefix:str, output_path:str, segment_length=1000, export_format="mp3", bitrate="192k"):
+def split_audio(input_path:str, prefix:str, output_path:str, segment_length=3 * 60 * 1000, export_format="mp3", bitrate="192k"):
     """
     takes in a long audio and splits in into multiple segmets\n
     `input_path`: path of the input audio file\n
     `prefix`: prefix of the output audio file (`e.g.` : `f"{NAME}_URL({i + 1})"`) \n
     `output_path`: output directory\n
-    `segment_length`: length of the segment\n
-    `export_format`: export format (`e.g`: `.mp3` , `.wav`)\n
+    `segment_length`: length of the segment `default 3 mins` `1000 for one second` \n
+    `export_format`: export format (`e.g`: `mp3` , `wav`)\n
     `bitrate`: bitrate\n
     """
     try:
         audio = AudioSegment.from_file(input_path)
 
         # Calculate the number of segments
+        # segment_duration = 3 * 60 * 1000
         num_segments = len(audio) // segment_length
 
         # Split the audio into segments
@@ -34,15 +35,15 @@ def split_audio(input_path:str, prefix:str, output_path:str, segment_length=1000
         for i in progress_bar:
             start_time = i * segment_length
             end_time = (i + 1) * segment_length
-            if start_time < 120000 or prefix == "not_long":
-                continue
+            # if start_time < 120000 or prefix == "not_long":
+            #     continue
             segment = audio[start_time:end_time]
 
             # Check if the segment is silent using the is_silent function
-            if is_silent(segment):
-                sys.stdout.write("\r" + f"\033[91m{prefix}: Silent segment skipped\033[0m")
-                sys.stdout.flush()
-                continue
+            # if is_silent(segment):
+            #     sys.stdout.write("\r" + f"\033[91m{prefix}: Silent segment skipped\033[0m")
+            #     sys.stdout.flush()
+            #     continue
 
             # Save each non-silent segment
             output_filename = f"{prefix}_segment_{i + 1}.{export_format}"

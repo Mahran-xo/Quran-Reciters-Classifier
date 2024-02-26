@@ -2,5 +2,9 @@ data/
 archive/
 quran
 output_folder
+QuranClf
+segmented_long_audio
+test_examples
+avg.ipynb
 saved
 __pycache__
