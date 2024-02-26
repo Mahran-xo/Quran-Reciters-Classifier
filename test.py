@@ -76,7 +76,6 @@ def predict(link):
     
     remove_all_content('output_folder')
     remove_all_content(wav_out)
-    # Don't clear preds, files_to_use, and files_list here
 
     return preds, pred['class_ids'].numpy()[0]
 
