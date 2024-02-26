@@ -4,15 +4,12 @@ import os
 import shutil
 import random 
 import uuid
-import arabic_reshaper
 from tqdm import tqdm
 import tensorflow as tf
 from statistics import mode
-from bidi.algorithm import get_display
 from vals import (download_youtube_audio,
                   choose_random_segment,
                   remove_all_content,
-                  gprint,
                   split_audio,
                   rprint,
                   get_audio_duration)
@@ -53,7 +50,7 @@ output_path = 'output_folder'
 wav_out = 'segmented_long_audio'
 imported = tf.saved_model.load("saved")
 classes = ['ابراهيم عبد المنعم ',
-            'احمد الشلبي  ',
+            'احمد الشلبي',
             'اسماعيل القاضي  ',
             'اوريانتو',
             'ايوب مصعب  ',

@@ -35,15 +35,13 @@ def split_audio(input_path:str, prefix:str, output_path:str, segment_length=3 * 
         for i in progress_bar:
             start_time = i * segment_length
             end_time = (i + 1) * segment_length
-            # if start_time < 120000 or prefix == "not_long":
-            #     continue
             segment = audio[start_time:end_time]
 
             # Check if the segment is silent using the is_silent function
-            # if is_silent(segment):
-            #     sys.stdout.write("\r" + f"\033[91m{prefix}: Silent segment skipped\033[0m")
-            #     sys.stdout.flush()
-            #     continue
+            if is_silent(segment):
+                sys.stdout.write("\r" + f"\033[91m{prefix}: Silent segment skipped\033[0m")
+                sys.stdout.flush()
+                continue
 
             # Save each non-silent segment
             output_filename = f"{prefix}_segment_{i + 1}.{export_format}"
