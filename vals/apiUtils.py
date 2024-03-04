@@ -1,13 +1,7 @@
-from bidi.algorithm import get_display
-from pydub import AudioSegment
-import arabic_reshaper
 import random
 import os
 import shutil
-import pandas as pd
 from .conf import rprint,gprint
-import subprocess
-import json
 
 global_seed = 42
 random.seed(global_seed)
