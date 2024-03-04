@@ -15,13 +15,13 @@ from vals import (download_youtube_audio,
                   rprint,
                   get_audio_duration)
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-cache_folder = os.path.join(current_dir, "vals", "__pycache__")
+# current_dir = os.path.dirname(os.path.abspath(__file__))
+# cache_folder = os.path.join(current_dir, "vals", "__pycache__")
 
-try:
-    shutil.rmtree(cache_folder)
-except OSError as e:
-    print(f"Error removing __pycache__ folder: {e}")
+# try:
+#     shutil.rmtree(cache_folder)
+# except OSError as e:
+#     print(f"Error removing __pycache__ folder: {e}")
 
     
 
@@ -46,10 +46,10 @@ classes = ['ابراهيم عبد المنعم ',
 def predict(link):
     random.seed(42)
     preds = []
-    max_duration=600
+    max_duration=3600
     input_video = download_youtube_audio(link, output_path, return_path=True)
     audio_duration = get_audio_duration(input_video)
-    if audio_duration > max_duration:
+    if audio_duration >= max_duration:
         rprint('audio is too long')
         split_audio(input_video, f"{str(uuid.uuid4())[:-10]}_LONG", wav_out ,segment_length=3*60*1000 ,export_format='wav')
         audio_path_list = choose_random_segment(wav_out,4)
@@ -80,7 +80,7 @@ def predict(link):
     return preds, pred['class_ids'].numpy()[0]
 
 if __name__ == "__main__":
-    preds,class_id=predict("https://www.youtube.com/watch?v=VZ-W8pLuCDU&t=863s")
+    preds,class_id=predict("https://www.youtube.com/watch?v=SHGgP2JIzjo")
     final_label = mode(preds)
     final_pred = classes[int(final_label)]
     label = final_pred

@@ -1,9 +1,13 @@
+from bidi.algorithm import get_display
 from pydub import AudioSegment
+import arabic_reshaper
 import random
 import os
 import shutil
-from pydub import AudioSegment
+import pandas as pd
 from .conf import rprint,gprint
+import subprocess
+import json
 
 global_seed = 42
 random.seed(global_seed)
@@ -27,9 +31,11 @@ def remove_all_content(directory_path):
         rprint(f"Error: {e}")
 
 
-def get_audio_duration(audio_path):
-    audio = AudioSegment.from_file(audio_path)
-    return len(audio) / 1000  # Convert milliseconds to seconds
+
+# def get_audio_duration(audio_path):
+#     audio = AudioSegment.from_file(audio_path)
+#     return len(audio) / 1000  # Convert milliseconds to seconds
+
 
 def choose_random_segment(output_folder, num_segments):
     wav_files = [file for file in os.listdir(output_folder) if file.endswith(".wav")]
@@ -40,3 +46,4 @@ def choose_random_segment(output_folder, num_segments):
     else:
         rprint("No .wav files found in the directory.")
         return None
+    

@@ -1,17 +1,18 @@
-from pydub import AudioSegment
 import os
+import subprocess
 from pytube import YouTube
-import time
-from .validators import is_silent 
 from .conf import colored_tqdm ,rprint
+from .apiUtils import choose_random_segment
 import subprocess
 import random
 import shutil
 import uuid
-import sys
+import subprocess
+import os
 
 global_seed = 42
 random.seed(global_seed)
+
 
 def split_audio(input_path:str, prefix:str, output_path:str, segment_length=3 * 60 * 1000, export_format="mp3", bitrate="192k"):
     """
@@ -24,39 +25,26 @@ def split_audio(input_path:str, prefix:str, output_path:str, segment_length=3 * 
     `bitrate`: bitrate\n
     """
     try:
-        audio = AudioSegment.from_file(input_path)
+            output_filename = f"{prefix}_segment_%03d.{export_format}"
+            ffmpeg_cmd = [
+                "ffmpeg",
+                "-i", input_path,
+                "-vn",
+                "-ar", "44100",
+                "-ac", "2",
+                "-c:a", "pcm_s16le",
+                "-segment_time", str(segment_length),
+                "-f", "segment",
+                os.path.join(output_path, output_filename)
+            ]
 
-        # Calculate the number of segments
-        # segment_duration = 3 * 60 * 1000
-        num_segments = len(audio) // segment_length
-
-        # Split the audio into segments
-        progress_bar = colored_tqdm(range(num_segments), color_code="\033[92m", desc=f"Processing {prefix}", unit="segment")    
-        for i in progress_bar:
-            start_time = i * segment_length
-            end_time = (i + 1) * segment_length
-            segment = audio[start_time:end_time]
-
-            # Check if the segment is silent using the is_silent function
-            if is_silent(segment):
-                sys.stdout.write("\r" + f"\033[91m{prefix}: Silent segment skipped\033[0m")
-                sys.stdout.flush()
-                continue
-
-            # Save each non-silent segment
-            output_filename = f"{prefix}_segment_{i + 1}.{export_format}"
-            segment.export(os.path.join(output_path, output_filename), format=export_format, bitrate=bitrate)
+            # Run FFmpeg command
+            subprocess.run(ffmpeg_cmd)
 
     except Exception as e:
         # Handle exceptions and print an informative message
         rprint(f"Error processing audio: {e}")
 
-def convert_mp3_to_wav(input_file:str, output_file:str):
-    """
-    convert from `mp3` to `wav`
-    """
-    subprocess.run(['ffmpeg','-y', '-loglevel', 'panic', '-i', input_file, '-acodec', 'pcm_s16le', '-ar', '44100', f"{output_file}.wav"])
-    return f"{output_file}.wav"
 
 def shuffle_and_copy_data(input_dir:str, output_dir:str, num_files:int):
     """
@@ -84,29 +72,30 @@ def shuffle_and_copy_data(input_dir:str, output_dir:str, num_files:int):
             shutil.copy(src_path, dest_path)
 
 
-def download_youtube_audio(url, output_path, progress_callback=None, return_path=False):
-    yt = YouTube(url)
+
+def on_progress(stream, chunk, bytes_remaining):
+    """Callback function"""
+    total_size = stream.filesize
+    bytes_downloaded = total_size - bytes_remaining
+    pct_completed = bytes_downloaded / total_size * 100
+    print(f"Status: {round(pct_completed, 2)} %")
+
+def download_youtube_audio(url, output_path):
+    yt = YouTube(url,on_progress_callback=on_progress)
+
     audio_stream = yt.streams.get_audio_only("mp4")
 
-    # Generate a unique identifier
     unique_id = str(uuid.uuid4())
-
-    # Append the unique identifier to the file name
     video_file_name = f"video_{unique_id}.mp4"
-
-    # Download the audio stream with the modified file name
+    output_path = 'output_folder'
+    wav_out = 'segmented_long_audio'
     audio_stream.download(output_path, filename=video_file_name)
 
-    # Simulate a total of 10 steps for the progress
-    total_steps = 10
+    input_video = os.path.join(output_path, video_file_name)
 
-    for step in range(1, total_steps + 1):
-        # Simulate downloading progress
-        time.sleep(0.1)
+    split_audio(input_video, f"{str(uuid.uuid4())[:-10]}_LONG", wav_out ,segment_length=180 ,export_format='wav')
 
-        # If a progress callback is provided, update the progress
-        if progress_callback:
-            progress_callback(step / total_steps)
+    audio_path_list = choose_random_segment(wav_out,4)
 
-    if return_path:
-        return str(os.path.join(output_path, video_file_name))
+    for file in audio_path_list:
+        split_audio(os.path.join(wav_out,file), f"{str(uuid.uuid4())[:-10]}_LONG2SHORT", output_path,segment_length=1, export_format='wav') 

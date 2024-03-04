@@ -3,6 +3,8 @@ pydub
 pytube
 arabic-reshaper
 fastapi
+openpyxl
+pandas
 uvicorn
 python-bidi
 tensorflow-io
