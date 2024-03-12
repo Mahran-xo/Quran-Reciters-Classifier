@@ -83,7 +83,8 @@ def on_progress(stream, chunk, bytes_remaining):
 def download_youtube_audio(url, output_path):
     yt = YouTube(url,on_progress_callback=on_progress)
 
-    audio_stream = yt.streams.get_audio_only("mp4")
+    audio_stream = yt.streams.filter(only_audio=True).order_by("abr").first()
+    rprint(yt.streams.filter(only_audio=True).order_by("abr"))
 
     unique_id = str(uuid.uuid4())
     video_file_name = f"video_{unique_id}.mp4"
@@ -92,10 +93,19 @@ def download_youtube_audio(url, output_path):
     audio_stream.download(output_path, filename=video_file_name)
 
     input_video = os.path.join(output_path, video_file_name)
+    output_audio=os.path.join(wav_out,f"{str(uuid.uuid4())[:-10]}_LONG.wav")
 
-    split_audio(input_video, f"{str(uuid.uuid4())[:-10]}_LONG", wav_out ,segment_length=180 ,export_format='wav')
-
-    audio_path_list = choose_random_segment(wav_out,4)
+    subprocess.run(['ffmpeg', 
+                    '-i', input_video,
+                    "-vn",
+                    "-ar", "22050",
+                    "-ac", "2",
+                    "-c:a", "pcm_s16le",
+                    '-ss', '150',
+                    '-t', '600', 
+                     output_audio])
+    
+    audio_path_list = [file for file in os.listdir(wav_out) if file.endswith(".wav")]
 
     for file in audio_path_list:
         split_audio(os.path.join(wav_out,file), f"{str(uuid.uuid4())[:-10]}_LONG2SHORT", output_path,segment_length=1, export_format='wav') 

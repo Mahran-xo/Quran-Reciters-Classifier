@@ -1,12 +1,12 @@
 from fastapi import FastAPI,File, UploadFile, HTTPException
 import uvicorn
 from fastapi.responses import StreamingResponse
-import io
 import os
 from bidi.algorithm import get_display
 import arabic_reshaper
 import shutil
 import random 
+import time
 import pandas as pd
 import uuid
 from tqdm import tqdm
@@ -75,9 +75,9 @@ async def predict(link:str):
 
     random.seed(42)
 
-    preds = []
     
-    download_youtube_audio(link, output_path, return_path=True) 
+    start_time = time.time()
+    download_youtube_audio(link, output_path) 
     
     # List all files in the output folder
     files_list = [file for file in os.listdir(output_path) if file.endswith(".wav")]
@@ -85,7 +85,7 @@ async def predict(link:str):
     # Take 40% of the files randomly
     num_files_to_use = int(len(files_list)*0.5)
     files_to_use = files_list[:num_files_to_use]
-    
+    preds = []
     for file in tqdm(files_to_use):
         pred = imported(os.path.join(output_path, file))
         preds.append(pred['class_ids'].numpy()[0])
@@ -95,7 +95,12 @@ async def predict(link:str):
     remove_all_content(wav_out)
 
     final_pred = classes[int(mode(preds))]
-    
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+
+    # Print the elapsed time
+    print(f"Elapsed time: {elapsed_time} seconds")
+
     return {"prediction": final_pred}
 
 if __name__ == "__main__":
